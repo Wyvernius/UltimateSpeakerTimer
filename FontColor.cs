@@ -12,29 +12,8 @@ using OrigColor = System.Drawing.Color;
 
 namespace UltimateSpeakerTimer
 {
-    static class TimerColors
-    {
-        static public Color FontColor1 = new Color(255, 255, 255, 255);
-        static public Color FontColor2 = new Color(0, 0, 0, 0);
-        static public Color BGColor1 = new Color(0, 0, 0, 255);
-        static public Color BGColor2 = new Color(0, 0, 0, 0);
-    }
-
-    static class TimerEffects
-    {
-        static public string GradientEffectTimer = "";
-        static public string GradientEffectBG = "";
-    }
-
-    public enum ColorType
-    {
-        Font = 1000,
-        Background = 1001,
-        None = 1002,
-    }
     public partial class ColorWindow : Form
     {
-        SettingsForm parent = null;
         ColorType Type = ColorType.None;
         Color color1;
         Color color2;
@@ -63,7 +42,7 @@ namespace UltimateSpeakerTimer
             {
                 if (con is CheckBox)
                 {
-                    if (!((CheckBox)con).Checked && ((CheckBox)con).Name == (Type == ColorType.Font ? TimerEffects.GradientEffectTimer : TimerEffects.GradientEffectBG))
+                    if (!((CheckBox)con).Checked && int.Parse((string)((CheckBox)con).Tag) == (int)(Type == ColorType.Font ? TimerEffects.GradientEffectTimer : TimerEffects.GradientEffectBG))
                     {
                         ((CheckBox)con).Checked = true;
                     }
@@ -108,13 +87,13 @@ namespace UltimateSpeakerTimer
             {
                 if (con is CheckBox)
                 {
-                    if (((CheckBox)con).Checked && ((CheckBox)con).Name != (Type == ColorType.Font ? TimerEffects.GradientEffectTimer : TimerEffects.GradientEffectBG))
+                    if (((CheckBox)con).Checked && int.Parse((string)((CheckBox)con).Tag) != (int)(Type == ColorType.Font ? TimerEffects.GradientEffectTimer : TimerEffects.GradientEffectBG))
                     {
                         a++;
                         if (Type == ColorType.Font)
-                            TimerEffects.GradientEffectTimer = ((CheckBox)con).Name;
+                            TimerEffects.GradientEffectTimer = (GradientDir)int.Parse((string)((CheckBox)con).Tag);
                         if (Type == ColorType.Background)
-                            TimerEffects.GradientEffectBG = ((CheckBox)con).Name;
+                            TimerEffects.GradientEffectBG = (GradientDir)int.Parse((string)((CheckBox)con).Tag);
                         break;
                     }
 
@@ -124,7 +103,7 @@ namespace UltimateSpeakerTimer
             {
                 if (con is CheckBox)
                 {
-                    if (((CheckBox)con).Checked && ((CheckBox)con).Name != (Type == ColorType.Font ? TimerEffects.GradientEffectTimer : TimerEffects.GradientEffectBG))
+                    if (((CheckBox)con).Checked && int.Parse((string)((CheckBox)con).Tag) != (int)(Type == ColorType.Font ? TimerEffects.GradientEffectTimer : TimerEffects.GradientEffectBG))
                     {
                         d++;
                         ((CheckBox)con).Checked = false;
@@ -134,9 +113,9 @@ namespace UltimateSpeakerTimer
             if (a == 0 && d == 0)
             {
                 if (Type == ColorType.Font)
-                    TimerEffects.GradientEffectTimer = "";
+                    TimerEffects.GradientEffectTimer = GradientDir.None;
                 if (Type == ColorType.Background)
-                    TimerEffects.GradientEffectBG = "";
+                    TimerEffects.GradientEffectBG = GradientDir.None;
             }
         }
 
@@ -148,5 +127,41 @@ namespace UltimateSpeakerTimer
                 TimerColors.BGColor2 = new Color(0,0,0,0);
             Color2.ForeColor = OrigColor.Black;
         }
+    }
+
+
+
+    static class TimerColors
+    {
+        static public Color FontColor1 = new Color(255, 255, 255, 255);
+        static public Color FontColor2 = new Color(0, 0, 0, 0);
+        static public Color BGColor1 = new Color(0, 0, 0, 255);
+        static public Color BGColor2 = new Color(0, 0, 0, 0);
+    }
+
+    static class TimerEffects
+    {
+        static public GradientDir GradientEffectTimer = 0;
+        static public GradientDir GradientEffectBG = 0;
+    }
+
+    public enum ColorType
+    {
+        Font = 1000,
+        Background = 1001,
+        None = 1002,
+    }
+
+    public enum GradientDir
+    {
+        None = 0,
+        LeftTop = 1,
+        Top = 2,
+        RightTop = 3,
+        Right = 4,
+        RightBottom = 5,
+        Bottom = 6,
+        LeftBottom = 7,
+        Left = 8,
     }
 }

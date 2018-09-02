@@ -70,6 +70,7 @@
             this.LeftTop.Name = "LeftTop";
             this.LeftTop.Size = new System.Drawing.Size(15, 14);
             this.LeftTop.TabIndex = 3;
+            this.LeftTop.Tag = "1";
             this.LeftTop.UseVisualStyleBackColor = true;
             this.LeftTop.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -80,6 +81,7 @@
             this.Top.Name = "Top";
             this.Top.Size = new System.Drawing.Size(15, 14);
             this.Top.TabIndex = 4;
+            this.Top.Tag = "2";
             this.Top.UseVisualStyleBackColor = true;
             this.Top.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -91,6 +93,7 @@
             this.RightTop.Name = "RightTop";
             this.RightTop.Size = new System.Drawing.Size(15, 14);
             this.RightTop.TabIndex = 5;
+            this.RightTop.Tag = "3";
             this.RightTop.UseVisualStyleBackColor = true;
             this.RightTop.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -102,6 +105,7 @@
             this.RightMid.Name = "RightMid";
             this.RightMid.Size = new System.Drawing.Size(15, 14);
             this.RightMid.TabIndex = 8;
+            this.RightMid.Tag = "4";
             this.RightMid.UseVisualStyleBackColor = true;
             this.RightMid.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -112,6 +116,7 @@
             this.LeftMid.Name = "LeftMid";
             this.LeftMid.Size = new System.Drawing.Size(15, 14);
             this.LeftMid.TabIndex = 6;
+            this.LeftMid.Tag = "8";
             this.LeftMid.UseVisualStyleBackColor = true;
             this.LeftMid.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -123,6 +128,7 @@
             this.RightBottom.Name = "RightBottom";
             this.RightBottom.Size = new System.Drawing.Size(15, 14);
             this.RightBottom.TabIndex = 11;
+            this.RightBottom.Tag = "5";
             this.RightBottom.UseVisualStyleBackColor = true;
             this.RightBottom.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -133,6 +139,7 @@
             this.Bottom.Name = "Bottom";
             this.Bottom.Size = new System.Drawing.Size(15, 14);
             this.Bottom.TabIndex = 10;
+            this.Bottom.Tag = "6";
             this.Bottom.UseVisualStyleBackColor = true;
             this.Bottom.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -143,6 +150,7 @@
             this.LeftBottom.Name = "LeftBottom";
             this.LeftBottom.Size = new System.Drawing.Size(15, 14);
             this.LeftBottom.TabIndex = 9;
+            this.LeftBottom.Tag = "7";
             this.LeftBottom.UseVisualStyleBackColor = true;
             this.LeftBottom.Click += new System.EventHandler(this.CheckBox_Click);
             // 
@@ -151,9 +159,9 @@
             this.GhostEffect.AutoSize = true;
             this.GhostEffect.Location = new System.Drawing.Point(12, 79);
             this.GhostEffect.Name = "GhostEffect";
-            this.GhostEffect.Size = new System.Drawing.Size(164, 13);
+            this.GhostEffect.Size = new System.Drawing.Size(158, 13);
             this.GhostEffect.TabIndex = 12;
-            this.GhostEffect.Text = "Checked == Gradient, else Ghost";
+            this.GhostEffect.Text = "Checked = Gradient, else Ghost";
             // 
             // ClearColor2
             // 
@@ -165,7 +173,7 @@
             this.ClearColor2.UseVisualStyleBackColor = true;
             this.ClearColor2.Click += new System.EventHandler(this.ClearColor2_Click);
             // 
-            // FontColor
+            // ColorWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -183,7 +191,7 @@
             this.Controls.Add(this.Color2);
             this.Controls.Add(this.Color1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name = "FontColor";
+            this.Name = "ColorWindow";
             this.Text = "FontColor";
             this.ResumeLayout(false);
             this.PerformLayout();

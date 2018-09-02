@@ -88,7 +88,7 @@ namespace UltimateSpeakerTimer
                 {
                     if (Font.TypeID == FontItem.MainTime)
                     {
-                        if (TimerEffects.GradientEffectTimer != "")
+                        if (TimerEffects.GradientEffectTimer != GradientDir.None)
                         {
                             GradientStop[] GS = new GradientStop[2];
                             GS[0].Color = TimerColors.FontColor1;
@@ -99,7 +99,7 @@ namespace UltimateSpeakerTimer
 
                             if (LGradientBrushTimer != null)
                                 LGradientBrushTimer.Dispose();
-                            if (TimerEffects.GradientEffectTimer == "LeftTop")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.LeftTop)
                             {
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -107,7 +107,7 @@ namespace UltimateSpeakerTimer
                                     EndPoint = new Vector2(Font.txtRect.Right, Font.txtRect.Bottom)
                                 }, GSC);
                             }
-                            if (TimerEffects.GradientEffectTimer == "Top")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.Top)
                             {
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -115,7 +115,7 @@ namespace UltimateSpeakerTimer
                                     EndPoint = new Vector2(Font.txtRect.X + (Font.txtRect.Width / 2), Font.txtRect.Bottom)
                                 }, GSC);
                             }
-                            if (TimerEffects.GradientEffectTimer == "RightTop")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.RightTop)
                             {
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -123,7 +123,7 @@ namespace UltimateSpeakerTimer
                                     EndPoint = new Vector2(Font.txtRect.X, Font.txtRect.Bottom)
                                 }, GSC);
                             }
-                            if (TimerEffects.GradientEffectTimer == "LeftMid")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.Left)
                             {
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -132,7 +132,7 @@ namespace UltimateSpeakerTimer
                                 }, GSC);
                                 return;
                             }
-                            if (TimerEffects.GradientEffectTimer == "RightMid")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.Right)
                             {
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -141,7 +141,7 @@ namespace UltimateSpeakerTimer
                                 }, GSC);
                                 return;
                             }
-                            if (TimerEffects.GradientEffectTimer == "LeftBottom")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.LeftBottom)
                             {
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -149,7 +149,7 @@ namespace UltimateSpeakerTimer
                                     EndPoint = new Vector2(Font.txtRect.Right, Font.txtRect.Top)
                                 }, GSC);
                             }
-                            if (TimerEffects.GradientEffectTimer == "Bottom")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.Bottom)
                             {;
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -157,7 +157,7 @@ namespace UltimateSpeakerTimer
                                     EndPoint = new Vector2(Font.txtRect.X + (Font.txtRect.Width / 2), Font.txtRect.Top)
                                 }, GSC);
                             }
-                            if (TimerEffects.GradientEffectTimer == "RightBottom")
+                            if (TimerEffects.GradientEffectTimer == GradientDir.RightBottom)
                             {
                                 LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                 {
@@ -184,9 +184,9 @@ namespace UltimateSpeakerTimer
 
                 if (LGradientBrushBG != null) 
                     LGradientBrushBG.Dispose();
-                if (TimerEffects.GradientEffectBG != "")
+                if (TimerEffects.GradientEffectBG != GradientDir.None)
                 {
-                    if (TimerEffects.GradientEffectBG == "LeftTop")
+                    if (TimerEffects.GradientEffectBG == GradientDir.LeftTop)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -194,7 +194,7 @@ namespace UltimateSpeakerTimer
                             EndPoint = new Vector2(deviceRect.Right, deviceRect.Bottom)
                         }, GSC);
                     }
-                    if (TimerEffects.GradientEffectBG == "Top")
+                    if (TimerEffects.GradientEffectBG == GradientDir.Top)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -202,7 +202,7 @@ namespace UltimateSpeakerTimer
                             EndPoint = new Vector2(deviceRect.X + (deviceRect.Width / 2), deviceRect.Bottom)
                         }, GSC);
                     }
-                    if (TimerEffects.GradientEffectBG == "RightTop")
+                    if (TimerEffects.GradientEffectBG == GradientDir.RightTop)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -210,7 +210,7 @@ namespace UltimateSpeakerTimer
                             EndPoint = new Vector2(deviceRect.X, deviceRect.Bottom)
                         }, GSC);
                     }
-                    if (TimerEffects.GradientEffectBG == "LeftMid")
+                    if (TimerEffects.GradientEffectBG == GradientDir.Left)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -218,7 +218,7 @@ namespace UltimateSpeakerTimer
                             EndPoint = new Vector2(deviceRect.Right, deviceRect.Y + (deviceRect.Height / 2))
                         }, GSC);
                     }
-                    if (TimerEffects.GradientEffectBG == "RightMid")
+                    if (TimerEffects.GradientEffectBG == GradientDir.Right)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -226,7 +226,7 @@ namespace UltimateSpeakerTimer
                             EndPoint = new Vector2(deviceRect.X, deviceRect.Y + (deviceRect.Height / 2))
                         }, GSC);
                     }
-                    if (TimerEffects.GradientEffectBG == "LeftBottom")
+                    if (TimerEffects.GradientEffectBG == GradientDir.LeftBottom)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -234,7 +234,7 @@ namespace UltimateSpeakerTimer
                             EndPoint = new Vector2(deviceRect.Right, deviceRect.Top)
                         }, GSC);
                     }
-                    if (TimerEffects.GradientEffectBG == "Bottom")
+                    if (TimerEffects.GradientEffectBG == GradientDir.Bottom)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -242,7 +242,7 @@ namespace UltimateSpeakerTimer
                             EndPoint = new Vector2(deviceRect.X + (deviceRect.Width / 2), deviceRect.Top)
                         }, GSC);
                     }
-                    if (TimerEffects.GradientEffectBG == "RightBottom")
+                    if (TimerEffects.GradientEffectBG == GradientDir.RightBottom)
                     {
                         LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                         {
@@ -353,37 +353,44 @@ namespace UltimateSpeakerTimer
             }
         }
 
-        private void DrawRect(float X, float Y, float W, float H, Color color)
+        public void DrawRect(float X, float Y, float W, float H, Color color)
         {
+            
             solidColorBrush.Color = color;
             device.DrawRectangle(new RectangleF(X, Y, W, H), solidColorBrush);
         }
 
-        private void DrawRect(float X, float Y, float W, float H, Color color, float stroke)
+        public void DrawRect(float X, float Y, float W, float H, Color color, float stroke)
         {
+            
             solidColorBrush.Color = color;
             device.DrawRectangle(new RectangleF(X, Y, W, H), solidColorBrush, stroke);
         }
 
-        private void DrawFillRect(float X, float Y, float W, float H, Color color)
+        public void DrawFillRect(float X, float Y, float W, float H, Color color)
         {
+            
             solidColorBrush.Color = color;
             device.FillRectangle(new RectangleF(X, Y, W, H), solidColorBrush);
         }
 
-        private void DrawFillRect(float X, float Y, float W, float H, Brush brush)
+        public void DrawFillRect(float X, float Y, float W, float H, Brush brush)
         {
+            
+            // solidColorBrush.Color = color;
             device.FillRectangle(new RectangleF(X, Y, W, H), brush);
         }
 
-        private void DrawText(float X, float Y, string text, Color color, TextFormat font)
+        public void DrawText(float X, float Y, string text, Color color, TextFormat font)
         {
+            
             solidColorBrush.Color = color;
             device.DrawText(text, font, new RectangleF(X, Y, font.FontSize * text.Length, font.FontSize), solidColorBrush);
         }
 
-        private void DrawText(float X, float Y, string text, Color color, bool outline, TextFormat font)
+        public void DrawText(float X, float Y, string text, Color color, bool outline, TextFormat font)
         {
+            
             if (outline)
             {
                 solidColorBrush.Color = Color.Black;
@@ -394,8 +401,9 @@ namespace UltimateSpeakerTimer
             device.DrawText(text, font, new RectangleF(X, Y, font.FontSize * text.Length, font.FontSize), solidColorBrush);
         }
 
-        private void DrawTextCenter(float X, float Y, float W, float H, string text, Color color, TextFormat font) //Modded
+        public void DrawTextCenter( float X, float Y, float W, float H, string text, Color color, TextFormat font) //Modded
         {
+            
             TextLayout layout = new TextLayout(fontFactory, text, font, W, H);
             layout.TextAlignment = TextAlignment.Center;
             layout.ParagraphAlignment = ParagraphAlignment.Center;
@@ -404,8 +412,9 @@ namespace UltimateSpeakerTimer
             layout.Dispose();
         }
 
-        private void DrawTextCenter(float X, float Y, float W, float H, string text, Brush brush, TextFormat font) //Modded
+        public void DrawTextCenter( float X, float Y, float W, float H, string text, Brush brush, TextFormat font) //Modded
         {
+            
             TextLayout layout = new TextLayout(fontFactory, text, font, W, H);
             layout.TextAlignment = TextAlignment.Center;
             layout.ParagraphAlignment = ParagraphAlignment.Center;
@@ -413,8 +422,9 @@ namespace UltimateSpeakerTimer
             layout.Dispose();
         }
 
-        private void DrawTextCenter(float X, float Y, float W, float H, string text, Color color, TextFormat font, Color GhostColor) //Modded
+        public void DrawTextCenter( float X, float Y, float W, float H, string text, Color color, TextFormat font, Color GhostColor) //Modded
         {
+            
             TextLayout layout = new TextLayout(fontFactory, text, font, W, H);
             layout.TextAlignment = TextAlignment.Center;
 
@@ -425,63 +435,39 @@ namespace UltimateSpeakerTimer
             device.DrawTextLayout(new Vector2(X, Y), layout, solidColorBrush);
             layout.Dispose();
         }
-        private void DrawLine(int X, int Y, int XX, int YY, Color color, float Width = 1)
+        public void DrawLine(int X, int Y, int XX, int YY, Color color, float Width = 1)
         {
+            
             solidColorBrush.Color = color;
             device.DrawLine(new Vector2(X, Y), new Vector2(XX, YY), solidColorBrush, Width);
         }
 
-        private void DrawLine(float X, float Y, float XX, float YY, Color color, float Width = 1)
+        public void DrawLine(float X, float Y, float XX, float YY, Color color, float Width = 1)
         {
+            
             solidColorBrush.Color = color;
             device.DrawLine(new Vector2(X, Y), new Vector2(XX, YY), solidColorBrush, Width);
         }
 
-        private void DrawLine(Vector3 w2s, Vector3 _w2s, Color color, float Width = 1)
+        public void DrawLine(Vector3 w2s, Vector3 _w2s, Color color, float Width = 1)
         {
+            
             solidColorBrush.Color = color;
             device.DrawLine(new Vector2(w2s.X, w2s.Y), new Vector2(_w2s.X, _w2s.Y), solidColorBrush, Width);
         }
 
-        private void DrawCircle(int X, int Y, int W, int H, int Rx, int Ry, Color color)
-        {
-            RoundedRectangle rect = new RoundedRectangle();
-            rect.RadiusX = Rx;
-            rect.RadiusY = Ry;
-            rect.Rect = new RectangleF(X, Y, W, H);
-            solidColorBrush.Color = color;
-            float[] Dashes = { };
-            StrokeStyleProperties styleProperties = default(StrokeStyleProperties);
-            device.DrawRoundedRectangle(ref rect, solidColorBrush, 1F, new StrokeStyle(factory, styleProperties, Dashes));
-        }
-
-        private void DrawCircle(int X, int Y, int W, Color color)
-        {
-            solidColorBrush.Color = color;
-            device.DrawEllipse(new Ellipse(new Vector2(X, Y), W, W), solidColorBrush);
-        }
-
-        private void DrawFillCircle(int X, int Y, int W, Color color)
-        {
-            solidColorBrush.Color = color;
-            device.FillEllipse(new Ellipse(new Vector2(X, Y), W, W), solidColorBrush);
-        }
-
         public void DrawImage(int X, int Y, int W, int H, Bitmap bitmap)
         {
+            
             device.DrawBitmap(bitmap, new RectangleF(X, Y, W, H), 1.0f, BitmapInterpolationMode.Linear);
         }
 
         public void DrawImage(int X, int Y, int W, int H, Bitmap bitmap, float angle)
         {
+            
             device.Transform = Matrix3x2.Rotation(angle, new SharpDX.Vector2(X + (H / 2), Y + (H / 2)));
             device.DrawBitmap(bitmap, new RectangleF(X, Y, W, H), 1.0f, BitmapInterpolationMode.Linear);
             device.Transform = Matrix3x2.Rotation(0);
-        }
-
-        public void DrawSprite(RectangleF destinationRectangle, Bitmap bitmap, RectangleF sourceRectangle)
-        {
-            device.DrawBitmap(bitmap, destinationRectangle, 1.0f, BitmapInterpolationMode.Linear, sourceRectangle);
         }
 
         public Bitmap LoadFromFile(string file, out Size2 size)

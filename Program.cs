@@ -19,7 +19,7 @@ namespace UltimateSpeakerTimer
         static void Main()
         {
             AllocConsole();
-           // ConsoleOutput.InitOutPut();
+            ConsoleOutput.InitOutPut();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new SettingsForm());

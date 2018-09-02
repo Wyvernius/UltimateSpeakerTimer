@@ -583,7 +583,7 @@
             this.pictureBox1.Location = new System.Drawing.Point(0, 0);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(726, 335);
+            this.pictureBox1.Size = new System.Drawing.Size(737, 398);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 19;
             this.pictureBox1.TabStop = false;
@@ -591,10 +591,10 @@
             // 
             // Message_TextBox
             // 
-            this.Message_TextBox.Location = new System.Drawing.Point(3, 3);
+            this.Message_TextBox.Location = new System.Drawing.Point(0, 2);
             this.Message_TextBox.Multiline = true;
             this.Message_TextBox.Name = "Message_TextBox";
-            this.Message_TextBox.Size = new System.Drawing.Size(685, 52);
+            this.Message_TextBox.Size = new System.Drawing.Size(697, 52);
             this.Message_TextBox.TabIndex = 22;
             this.Message_TextBox.TextChanged += new System.EventHandler(this.Message_TextBox_TextChanged);
             // 
@@ -689,7 +689,7 @@
             this.MessagePanel.Controls.Add(this.MessageFontButton);
             this.MessagePanel.Controls.Add(this.MessageTimeSetterLabel);
             this.MessagePanel.Controls.Add(this.MessageTimeSetter);
-            this.MessagePanel.Location = new System.Drawing.Point(37, 401);
+            this.MessagePanel.Location = new System.Drawing.Point(29, 401);
             this.MessagePanel.Name = "MessagePanel";
             this.MessagePanel.Size = new System.Drawing.Size(697, 100);
             this.MessagePanel.TabIndex = 48;
@@ -709,7 +709,7 @@
             this.MinimumSize = new System.Drawing.Size(1055, 528);
             this.Name = "SettingsForm";
             this.ShowIcon = false;
-            this.Text = "wq";
+            this.Text = "UltimateSpeakerTimer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsForm_FormClosing);
             this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.ResizeBegin += new System.EventHandler(this.SettingsForm_ResizeBegin);

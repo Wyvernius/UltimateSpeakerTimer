@@ -8,12 +8,19 @@ using Drawing = System.Drawing;
 using SharpDX.Mathematics;
 using RectangleF = SharpDX.RectangleF;
 using SharpDX;
+using SharpDX.Direct2D1;
+using RenderTarget = SharpDX.Direct2D1.RenderTarget;
+using SolidColorBrush = SharpDX.Direct2D1.SolidColorBrush;
+using Brush = SharpDX.Direct2D1.Brush;
+using FontFactory = SharpDX.DirectWrite.Factory;
+using Bitmap = SharpDX.Direct2D1.Bitmap;
 
 namespace UltimateSpeakerTimer
 {
     public static class Shared
     {
         public static List<DxFont> Fonts = new List<DxFont>();
+
     }
     public class DxFont
     {
@@ -26,7 +33,7 @@ namespace UltimateSpeakerTimer
         Drawing.Graphics g;
         public DxFont() { }
         Drawing.Font OrigFont;
-        public DxFont(Drawing.Font TimerFont,FontItem _ID,float Div = 1, float scalar = 1)
+        public DxFont(WindowRenderTarget device,Drawing.Font TimerFont,FontItem _ID,float Div = 1, float scalar = 1)
         {
             TypeID = _ID;
             scale = scalar;
@@ -34,7 +41,7 @@ namespace UltimateSpeakerTimer
             FontWeight fontw = FontWeight.Normal;
             FontStyle fonts = FontStyle.Normal;
             txt = "";
-            using (Factory fontFactory = new Factory())
+            using (FontFactory fontFactory = new FontFactory())
             {
                 if (TimerFont.Bold)
                     fontw = FontWeight.Bold;
@@ -44,7 +51,7 @@ namespace UltimateSpeakerTimer
                 
                     txtFormat = new TextFormat(fontFactory, TimerFont.Name, fontw, fonts, (TimerFont.Size  * Div)  * scalar);
             }
-            g = Drawing.Graphics.FromImage(new Drawing.Bitmap(1920, 1080));
+            g = Drawing.Graphics.FromImage(new Drawing.Bitmap((int)device.Size.Width,(int)device.Size.Height)); // create graphics to measure string later.
         }
         public TextFormat GetFormat()
         {

@@ -7,10 +7,10 @@ namespace UltimateSpeakerTimer
 {
     static class Countdown 
     {
-        public static int MessageTime = -1;
         public static int Hours = 0;
         public static int Minutes = 1;
         public static int Seconds = 0;
+        static bool OverTime = false;
 
         public static string GetTime()
         {
@@ -25,7 +25,7 @@ namespace UltimateSpeakerTimer
             }
             else if (Seconds != 0)
             {
-                TimerText = ((Seconds < 10) ? ("0" + Seconds.ToString()) : Seconds.ToString());
+                TimerText = Seconds.ToString();
             }
             return TimerText;
         }
@@ -41,7 +41,7 @@ namespace UltimateSpeakerTimer
 
         public static int TimeCountDown()
         {
-            if (Hours + Minutes + Seconds != 0)
+            if (Hours + Minutes + Seconds != 0 && !OverTime)
             {
                 Seconds--;
                 if (Seconds < 0)
@@ -58,10 +58,26 @@ namespace UltimateSpeakerTimer
                 if (Hours + Minutes + Seconds == 0)
                 {
                     UltimateSpeakerTimer.PlaySound.PlayendSound();
+                    OverTime = true;
+                    return 0;
                 }
             }
-            if (MessageTime > 0)
-                MessageTime--;
+
+            if (OverTime && CountDownEffectClass.CountUpOnZero)
+            {
+                Seconds++;
+                if (Seconds > 59)
+                {
+                    Seconds = 0;
+                    Minutes++;
+                    if (Minutes > 59)
+                    {
+                        Minutes = 0;
+                        Hours++;
+                    }
+                }
+            }
+
             return 0;
         }
     }

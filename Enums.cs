@@ -20,5 +20,13 @@ namespace UltimateSpeakerTimer
     public enum AnimMove
     {
         Move = 1990,
+        Static= 1991,
+    }
+
+    public enum ScreenType
+    {
+        Unsupported = 0,
+        WideScreen = 1,
+        NarrowScreen = 2,
     }
 }

@@ -29,6 +29,7 @@ namespace UltimateSpeakerTimer
     public partial class SettingsForm : Form
     {
         private Thread PreviewThread = null, KeyThread = null;
+        private bool StopPreview = false;
         public WindowRenderTarget device;
         private HwndRenderTargetProperties renderProperties;
         private static SolidColorBrush solidColorBrush;
@@ -46,6 +47,8 @@ namespace UltimateSpeakerTimer
         public Font PickedMessageFont;
         public DxFont SpeakerFont;
         public Size TitelBarSize;
+        public bool UpdateFonts = false;
+        
 
         public static Brush LGradientBrushTimer;
         public Brush LGradientBrushBG;
@@ -59,7 +62,7 @@ namespace UltimateSpeakerTimer
         public FontItem TextFocus = FontItem.None;
         bool keyDown = false;
 
-        GradientStopCollection GSC = null; 
+        GradientStopCollection GSC = null;
 
         private void StartButton_Click(object sender, EventArgs e)
         {
@@ -121,22 +124,24 @@ namespace UltimateSpeakerTimer
             fontDialog1.AllowSimulations = true;
             fontDialog1.ShowEffects = false;
 
-            if (fontDialog1.ShowDialog() == DialogResult.OK)
+
+            if (UpdateFonts || fontDialog1.ShowDialog() == DialogResult.OK)
             {
+                UpdateFonts = false;
                 // Preview selected font.
                 FontName.Font = new Font(fontDialog1.Font.FontFamily, 18f, fontDialog1.Font.Style);
                 FontName.Text = fontDialog1.Font.Name;
 
                 PickedFont = new Font(fontDialog1.Font.FontFamily, fontDialog1.Font.Size, fontDialog1.Font.Style);
 
-                DxFont PreviewFont = new DxFont(PickedFont, FontItem.Time);
-                DxFont MainFont = new DxFont(PickedFont, FontItem.MainTime,1.0f,GetRatioTimerForm());
+                DxFont PreviewFont = new DxFont(device,PickedFont, FontItem.Time);
+                DxFont MainFont = new DxFont(timerForm.device,PickedFont, FontItem.MainTime, 1.0f, GetRatioTimerForm());
 
-                DxFont PreviewNameFont = new DxFont(PickedFont, FontItem.Name, 1.0f / 3.0f);
-                DxFont MainNameFont = new DxFont(PickedFont, FontItem.MainName, 1.0f / 3.0f, GetRatioTimerForm());
+                DxFont PreviewNameFont = new DxFont(device,PickedFont, FontItem.Name, 1.0f / 3.0f);
+                DxFont MainNameFont = new DxFont(timerForm.device, PickedFont, FontItem.MainName, 1.0f / 3.0f, GetRatioTimerForm());
 
-                DxFont PreviewMessageFont = new DxFont(PickedFont, FontItem.Message, 1.0f / 3.0f);
-                DxFont MainMessageFont = new DxFont(PickedFont, FontItem.MainMessage, 1.0f / 3.0f, GetRatioTimerForm());
+                DxFont PreviewMessageFont = new DxFont(device,PickedFont, FontItem.Message, 1.0f / 3.0f);
+                DxFont MainMessageFont = new DxFont(timerForm.device, PickedFont, FontItem.MainMessage, 1.0f / 3.0f, GetRatioTimerForm());
 
                 PreviewFont.SetText(Countdown.GetTime());
                 MainFont.SetText(Countdown.GetTime());
@@ -190,7 +195,7 @@ namespace UltimateSpeakerTimer
         }
 
 
-        private void UpDownValue_Changed(object sender,EventArgs e)
+        private void UpDownValue_Changed(object sender, EventArgs e)
         {
             if (!TimerClass.Active(TimerType.CountDown))
             {
@@ -222,8 +227,26 @@ namespace UltimateSpeakerTimer
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
-            pictureBoxRect = new RectangleF(pictureBox1.Location.X, pictureBox1.Location.Y, pictureBox1.Size.Width, pictureBox1.Size.Height);
             timerForm = new timerForm(this);
+            InitPreviewWindow(timerForm.device.Size);
+
+            GetScreens();
+
+            Screen[] Screens = Screen.AllScreens;
+            foreach (Screen screen in Screens)
+            {
+                if (ScreenListView.FocusedItem.SubItems[1].Text == screen.DeviceName)
+                {
+                    ScreenListView.FocusedItem.Selected = true;
+                }
+            }
+            PreviewThread = new Thread(new ParameterizedThreadStart(PreviewLoop));
+            PreviewThread.Start();
+            MessageTime = (int)MessageTimeSetter.Value;
+        }
+
+        private void GetScreens()
+        {
             Screen[] Screens = Screen.AllScreens;
             int i = 0;
             foreach (Screen screen in Screens)
@@ -232,19 +255,7 @@ namespace UltimateSpeakerTimer
                 ScreenListView.Items.Add(new ListViewItem(Row));
                 i++;
             }
-
             ScreenListView.Items[0].Focused = true;
-            foreach (Screen screen in Screens)
-            {
-                if (ScreenListView.FocusedItem.SubItems[1].Text == screen.DeviceName)
-                {
-                    ScreenListView.FocusedItem.Selected = true;
-                }
-            }
-            InitPreviewWindow(timerForm.device.Size);
-            PreviewThread = new Thread(new ParameterizedThreadStart(PreviewLoop));
-            PreviewThread.Start();
-            MessageTime = (int)MessageTimeSetter.Value;
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -256,17 +267,33 @@ namespace UltimateSpeakerTimer
                 {
                     timerForm.StartPosition = FormStartPosition.Manual;
                     timerForm.Location = screen.Bounds.Location;
+                    timerForm.Size = new Size(screen.Bounds.Width, screen.Bounds.Height);
                     timerForm.device.Resize(new SharpDX.Size2(screen.Bounds.Width, screen.Bounds.Height));
                     resizePreviewRect();
                 }
-
             }
+            UpdateFonts = true;
+            Font_Select_Click(this, null);
         }
 
         private void resizePreviewRect()
         {
-            pictureBoxRect.Height = ((float)timerForm.device.Size.Height / (float)timerForm.device.Size.Width) * (float)pictureBoxRect.Width;
-            Console.WriteLine(((float)pictureBoxRect.Size.Width / (float)pictureBoxRect.Size.Height) + "," + ((float)timerForm.device.Size.Width / (float)timerForm.device.Size.Height));
+            ScreenType screenType = ScreenType.Unsupported;
+            pictureBoxRect = new RectangleF(pictureBox1.Location.X, pictureBox1.Location.Y, pictureBox1.Size.Width, pictureBox1.Size.Height);
+
+            if ((float)timerForm.device.Size.Width / (float)timerForm.device.Size.Height == 16f/9f)
+            {
+                screenType = ScreenType.WideScreen;
+                pictureBoxRect.Height = ((float)timerForm.device.Size.Height / (float)timerForm.device.Size.Width) * (float)pictureBox1.Width;
+            }
+            if ((float)timerForm.device.Size.Width / (float)timerForm.device.Size.Height == 4f/3f)
+            {
+                screenType = ScreenType.NarrowScreen;
+                pictureBoxRect.Width = ((float)timerForm.device.Size.Height / (float)timerForm.device.Size.Width) * (float)pictureBox1.Width;
+            }
+            if (screenType == ScreenType.Unsupported)
+                MessageBox.Show("Unsupported Screen Ratio");
+            Console.WriteLine("ScreenType : {0}",screenType);
         }
 
         private void BG_Color_Click(object sender, EventArgs e)
@@ -317,11 +344,11 @@ namespace UltimateSpeakerTimer
 
         public void PreviewLoop(object sender)
         {
-            while (true)
+            while (!StopPreview)
             {
                 try
                 {
-                    device.Resize(new Size2(this.Width,this.Height));
+                    device.Resize(new Size2(this.Width, this.Height));
                     device.BeginDraw();
                     device.Clear(SettingsClearColor);
 
@@ -339,7 +366,7 @@ namespace UltimateSpeakerTimer
                         DrawImage((int)pictureBoxRect.Location.X, (int)pictureBoxRect.Location.Y, (int)pictureBoxRect.Size.Width, (int)pictureBoxRect.Size.Height, bitmap);
 
                     // Time Rendering
-                    for (int  i = 0; i < Shared.Fonts.Count;i++)
+                    for (int i = 0; i < Shared.Fonts.Count; i++)
                     {
                         DxFont Font = Shared.Fonts[i];
                         if (Font.TypeID == FontItem.Time)
@@ -348,7 +375,7 @@ namespace UltimateSpeakerTimer
                             {
                                 Font.SetText(Countdown.GetTime());
                                 DrawRect(Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Color.Blue);
-                                
+
                                 GetBrush(ColorType.Font);
                                 if (LGradientBrushTimer == null)
                                 {
@@ -407,7 +434,6 @@ namespace UltimateSpeakerTimer
                                     AnnimationMessage.Send = false;
                                     AnnimationMessage.running = false;
                                 }
-
                             }
                             else
                             {
@@ -423,7 +449,7 @@ namespace UltimateSpeakerTimer
                                     if (!AnnimationMessage.running)
                                     {
                                         AnnimationMessage.Start();
-                                        Font.txtRect.X = pictureBox1.Right;
+                                        Font.txtRect.X = pictureBoxRect.Right;
 
                                     }
                                 }
@@ -438,7 +464,7 @@ namespace UltimateSpeakerTimer
                                         SettingsForm_MouseMove(AnimMove.Move, new MouseEventArgs(MouseButtons.None, 0, (int)-AnnimationMessage.speed, 0, 0));
                                     }
                                     DrawRect(Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Color.Blue);
-                                    DrawTextCenter(Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Font.txt, TimerColors.FontColor1, Font.GetFormat());
+                                    DrawTextCenter( Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Font.txt, TimerColors.FontColor1, Font.GetFormat());
                                 }
                                 if (AnnimationMessage.running)
                                 {
@@ -454,12 +480,12 @@ namespace UltimateSpeakerTimer
                                     if (Font.txtRect.Right > 0)
                                         SettingsForm_MouseMove(AnimMove.Move, new MouseEventArgs(MouseButtons.None, 0, (int)-AnnimationMessage.speed, 0, 0));
 
-                                    DrawRect(Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Color.Red);
-                                    DrawTextCenter(Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Font.txt, TimerColors.FontColor1, Font.GetFormat());
+                                    DrawRect( Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Color.Red);
+                                    DrawTextCenter( Font.txtRect.X, Font.txtRect.Y, Font.txtRect.Width, Font.txtRect.Height, Font.txt, TimerColors.FontColor1, Font.GetFormat());
                                 }
                             }
                         }
-                                
+
                     }
                     device.EndDraw();
                 }
@@ -467,7 +493,7 @@ namespace UltimateSpeakerTimer
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
-                   // ConsoleOutput.Dispose();
+                    // ConsoleOutput.Dispose();
                 }
             }
         }
@@ -481,11 +507,11 @@ namespace UltimateSpeakerTimer
                 {
                     if (LGradientBrushTimer != null)
                         LGradientBrushTimer.Dispose();
-                    if (TimerEffects.GradientEffectTimer != "")
+                    if (TimerEffects.GradientEffectTimer != GradientDir.None)
                     {
                         foreach (DxFont Font in Shared.Fonts)
                         {
-                            if (Font.TypeID == FontItem.Time)
+                            if (Font.TypeID == FontItem.Time || Font.TypeID == FontItem.MainTime)
                             {
                                 GradientStop[] GS = new GradientStop[2];
                                 GS[0].Color = TimerColors.FontColor1;
@@ -494,7 +520,7 @@ namespace UltimateSpeakerTimer
                                 GS[1].Position = 1.0f;
                                 GradientStopCollection GSC = new GradientStopCollection(device, GS);
 
-                                if (TimerEffects.GradientEffectTimer == "LeftTop")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.LeftTop)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -502,7 +528,7 @@ namespace UltimateSpeakerTimer
                                         EndPoint = new Vector2(Font.txtRect.Right, Font.txtRect.Bottom)
                                     }, GSC);
                                 }
-                                if (TimerEffects.GradientEffectTimer == "Top")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.Top)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -510,7 +536,7 @@ namespace UltimateSpeakerTimer
                                         EndPoint = new Vector2(Font.txtRect.X + (Font.txtRect.Width / 2), Font.txtRect.Bottom)
                                     }, GSC);
                                 }
-                                if (TimerEffects.GradientEffectTimer == "RightTop")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.RightTop)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -518,7 +544,7 @@ namespace UltimateSpeakerTimer
                                         EndPoint = new Vector2(Font.txtRect.X, Font.txtRect.Bottom)
                                     }, GSC);
                                 }
-                                if (TimerEffects.GradientEffectTimer == "LeftMid")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.Left)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -526,7 +552,7 @@ namespace UltimateSpeakerTimer
                                         EndPoint = new Vector2(Font.txtRect.Right, Font.txtRect.Y + (Font.txtRect.Height / 2))
                                     }, GSC);
                                 }
-                                if (TimerEffects.GradientEffectTimer == "RightMid")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.Right)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -534,7 +560,7 @@ namespace UltimateSpeakerTimer
                                         EndPoint = new Vector2(Font.txtRect.X, Font.txtRect.Y + (Font.txtRect.Height / 2))
                                     }, GSC);
                                 }
-                                if (TimerEffects.GradientEffectTimer == "LeftBottom")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.LeftBottom)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -542,7 +568,7 @@ namespace UltimateSpeakerTimer
                                         EndPoint = new Vector2(Font.txtRect.Right, Font.txtRect.Top)
                                     }, GSC);
                                 }
-                                if (TimerEffects.GradientEffectTimer == "Bottom")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.Bottom)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -550,7 +576,7 @@ namespace UltimateSpeakerTimer
                                         EndPoint = new Vector2(Font.txtRect.X + (Font.txtRect.Width / 2), Font.txtRect.Top)
                                     }, GSC);
                                 }
-                                if (TimerEffects.GradientEffectTimer == "RightBottom")
+                                if (TimerEffects.GradientEffectTimer == GradientDir.RightBottom)
                                 {
                                     LGradientBrushTimer = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                                     {
@@ -578,9 +604,9 @@ namespace UltimateSpeakerTimer
 
                     if (LGradientBrushBG != null)
                         LGradientBrushBG.Dispose();
-                    if (TimerEffects.GradientEffectBG != "")
+                    if (TimerEffects.GradientEffectBG != GradientDir.None)
                     {
-                        if (TimerEffects.GradientEffectBG == "LeftTop")
+                        if (TimerEffects.GradientEffectBG == GradientDir.LeftTop)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -588,7 +614,7 @@ namespace UltimateSpeakerTimer
                                 EndPoint = new Vector2(pictureBoxRect.Right, pictureBoxRect.Bottom)
                             }, GSC);
                         }
-                        if (TimerEffects.GradientEffectBG == "Top")
+                        if (TimerEffects.GradientEffectBG == GradientDir.Top)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -596,7 +622,7 @@ namespace UltimateSpeakerTimer
                                 EndPoint = new Vector2(pictureBoxRect.X + (pictureBoxRect.Width / 2), pictureBoxRect.Bottom)
                             }, GSC);
                         }
-                        if (TimerEffects.GradientEffectBG == "RightTop")
+                        if (TimerEffects.GradientEffectBG == GradientDir.RightTop)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -604,7 +630,7 @@ namespace UltimateSpeakerTimer
                                 EndPoint = new Vector2(pictureBoxRect.X, pictureBoxRect.Bottom)
                             }, GSC);
                         }
-                        if (TimerEffects.GradientEffectBG == "LeftMid")
+                        if (TimerEffects.GradientEffectBG == GradientDir.Left)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -612,7 +638,7 @@ namespace UltimateSpeakerTimer
                                 EndPoint = new Vector2(pictureBoxRect.Right, pictureBoxRect.Y + (pictureBoxRect.Height / 2))
                             }, GSC);
                         }
-                        if (TimerEffects.GradientEffectBG == "RightMid")
+                        if (TimerEffects.GradientEffectBG == GradientDir.Right)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -620,7 +646,7 @@ namespace UltimateSpeakerTimer
                                 EndPoint = new Vector2(pictureBoxRect.X, pictureBoxRect.Y + (pictureBoxRect.Height / 2))
                             }, GSC);
                         }
-                        if (TimerEffects.GradientEffectBG == "LeftBottom")
+                        if (TimerEffects.GradientEffectBG == GradientDir.LeftBottom)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -628,7 +654,7 @@ namespace UltimateSpeakerTimer
                                 EndPoint = new Vector2(pictureBoxRect.Right, pictureBoxRect.Top)
                             }, GSC);
                         }
-                        if (TimerEffects.GradientEffectBG == "Bottom")
+                        if (TimerEffects.GradientEffectBG == GradientDir.Bottom)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -636,7 +662,7 @@ namespace UltimateSpeakerTimer
                                 EndPoint = new Vector2(pictureBoxRect.X + (pictureBoxRect.Width / 2), pictureBoxRect.Top)
                             }, GSC);
                         }
-                        if (TimerEffects.GradientEffectBG == "RightBottom")
+                        if (TimerEffects.GradientEffectBG == GradientDir.RightBottom)
                         {
                             LGradientBrushBG = new LinearGradientBrush(device, new LinearGradientBrushProperties()
                             {
@@ -657,38 +683,45 @@ namespace UltimateSpeakerTimer
         }
 
         #region Drawing
-        private void DrawRect(float X, float Y, float W, float H, Color color)
+
+        public void DrawRect(float X, float Y, float W, float H, Color color)
         {
+
             solidColorBrush.Color = color;
             device.DrawRectangle(new RectangleF(X, Y, W, H), solidColorBrush);
         }
 
-        private void DrawRect(float X, float Y, float W, float H, Color color, float stroke)
+        public void DrawRect(float X, float Y, float W, float H, Color color, float stroke)
         {
+
             solidColorBrush.Color = color;
             device.DrawRectangle(new RectangleF(X, Y, W, H), solidColorBrush, stroke);
         }
 
-        private void DrawFillRect(float X, float Y, float W, float H, Color color)
+        public void DrawFillRect(float X, float Y, float W, float H, Color color)
         {
+
             solidColorBrush.Color = color;
             device.FillRectangle(new RectangleF(X, Y, W, H), solidColorBrush);
         }
 
-        private void DrawFillRect(float X, float Y, float W, float H, Brush brush)
+        public void DrawFillRect(float X, float Y, float W, float H, Brush brush)
         {
+
             // solidColorBrush.Color = color;
             device.FillRectangle(new RectangleF(X, Y, W, H), brush);
         }
 
-        private void DrawText(float X, float Y, string text, Color color, TextFormat font)
+        public void DrawText(float X, float Y, string text, Color color, TextFormat font)
         {
+
             solidColorBrush.Color = color;
             device.DrawText(text, font, new RectangleF(X, Y, font.FontSize * text.Length, font.FontSize), solidColorBrush);
         }
 
-        private void DrawText(float X, float Y, string text, Color color, bool outline, TextFormat font)
+        public void DrawText(float X, float Y, string text, Color color, bool outline, TextFormat font)
         {
+
             if (outline)
             {
                 solidColorBrush.Color = Color.Black;
@@ -699,8 +732,9 @@ namespace UltimateSpeakerTimer
             device.DrawText(text, font, new RectangleF(X, Y, font.FontSize * text.Length, font.FontSize), solidColorBrush);
         }
 
-        private void DrawTextCenter(float X, float Y, float W, float H, string text, Color color, TextFormat font) //Modded
+        public void DrawTextCenter(float X, float Y, float W, float H, string text, Color color, TextFormat font) //Modded
         {
+
             TextLayout layout = new TextLayout(fontFactory, text, font, W, H);
             layout.TextAlignment = TextAlignment.Center;
             layout.ParagraphAlignment = ParagraphAlignment.Center;
@@ -709,8 +743,9 @@ namespace UltimateSpeakerTimer
             layout.Dispose();
         }
 
-        private void DrawTextCenter(float X, float Y, float W, float H, string text, Brush brush, TextFormat font) //Modded
+        public void DrawTextCenter(float X, float Y, float W, float H, string text, Brush brush, TextFormat font) //Modded
         {
+
             TextLayout layout = new TextLayout(fontFactory, text, font, W, H);
             layout.TextAlignment = TextAlignment.Center;
             layout.ParagraphAlignment = ParagraphAlignment.Center;
@@ -718,8 +753,9 @@ namespace UltimateSpeakerTimer
             layout.Dispose();
         }
 
-        private void DrawTextCenter(float X, float Y, float W, float H, string text, Color color, TextFormat font, Color GhostColor) //Modded
+        public void DrawTextCenter(float X, float Y, float W, float H, string text, Color color, TextFormat font, Color GhostColor) //Modded
         {
+
             TextLayout layout = new TextLayout(fontFactory, text, font, W, H);
             layout.TextAlignment = TextAlignment.Center;
 
@@ -730,65 +766,40 @@ namespace UltimateSpeakerTimer
             device.DrawTextLayout(new Vector2(X, Y), layout, solidColorBrush);
             layout.Dispose();
         }
-        private void DrawLine(int X, int Y, int XX, int YY, Color color, float Width = 1)
+        public void DrawLine(int X, int Y, int XX, int YY, Color color, float Width = 1)
         {
+
             solidColorBrush.Color = color;
             device.DrawLine(new Vector2(X, Y), new Vector2(XX, YY), solidColorBrush, Width);
         }
 
-        private void DrawLine(float X, float Y, float XX, float YY, Color color, float Width = 1)
+        public void DrawLine(float X, float Y, float XX, float YY, Color color, float Width = 1)
         {
+
             solidColorBrush.Color = color;
             device.DrawLine(new Vector2(X, Y), new Vector2(XX, YY), solidColorBrush, Width);
         }
 
-        private void DrawLine(Vector3 w2s, Vector3 _w2s, Color color, float Width = 1)
+        public void DrawLine(Vector3 w2s, Vector3 _w2s, Color color, float Width = 1)
         {
+
             solidColorBrush.Color = color;
             device.DrawLine(new Vector2(w2s.X, w2s.Y), new Vector2(_w2s.X, _w2s.Y), solidColorBrush, Width);
         }
 
-        private void DrawCircle(int X, int Y, int W, int H, int Rx, int Ry, Color color)
-        {
-            RoundedRectangle rect = new RoundedRectangle();
-            rect.RadiusX = Rx;
-            rect.RadiusY = Ry;
-            rect.Rect = new RectangleF(X, Y, W, H);
-            solidColorBrush.Color = color;
-            float[] Dashes = { };
-            StrokeStyleProperties styleProperties = default(StrokeStyleProperties);
-            device.DrawRoundedRectangle(ref rect, solidColorBrush, 1F, new StrokeStyle(factory, styleProperties, Dashes));
-        }
-
-        private void DrawCircle(int X, int Y, int W, Color color)
-        {
-            solidColorBrush.Color = color;
-            device.DrawEllipse(new Ellipse(new Vector2(X, Y), W, W), solidColorBrush);
-        }
-
-        private void DrawFillCircle(int X, int Y, int W, Color color)
-        {
-            solidColorBrush.Color = color;
-            device.FillEllipse(new Ellipse(new Vector2(X, Y), W, W), solidColorBrush);
-        }
-
         public void DrawImage(int X, int Y, int W, int H, Bitmap bitmap)
         {
+
             device.DrawBitmap(bitmap, new RectangleF(X, Y, W, H), 1.0f, BitmapInterpolationMode.Linear);
         }
 
         public void DrawImage(int X, int Y, int W, int H, Bitmap bitmap, float angle)
         {
+
             device.Transform = Matrix3x2.Rotation(angle, new SharpDX.Vector2(X + (H / 2), Y + (H / 2)));
             device.DrawBitmap(bitmap, new RectangleF(X, Y, W, H), 1.0f, BitmapInterpolationMode.Linear);
             device.Transform = Matrix3x2.Rotation(0);
         }
-
-        public void DrawSprite(RectangleF destinationRectangle, Bitmap bitmap, RectangleF sourceRectangle)
-        {
-            device.DrawBitmap(bitmap, destinationRectangle, 1.0f, BitmapInterpolationMode.Linear, sourceRectangle);
-        }
-
         public Bitmap LoadFromFile(string file, out Size2 size)
         {
             // Loads from file using System.Drawing.Image
@@ -847,7 +858,9 @@ namespace UltimateSpeakerTimer
 
         private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            StopPreview = true;
             PreviewThread.Abort();
+
         }
 
         private void Message_TextBox_TextChanged(object sender, EventArgs e)
@@ -865,15 +878,12 @@ namespace UltimateSpeakerTimer
             }
         }
 
-
-
-      
-
         private void MessageTimeSetter_ValueChanged(object sender, EventArgs e)
         {
             AnnimationMessage.BaseTime = (int)MessageTimeSetter.Value;
         }
 
+        #region Mouse Input
         private void SettingsForm_MouseMove(object sender, MouseEventArgs e)
         {
             float DifX;
@@ -897,54 +907,28 @@ namespace UltimateSpeakerTimer
             {
                 if (TextFocus == FontItem.Time && Shared.Fonts[i].TypeID == FontItem.Time)
                 {
-                    if (InPictureBoundsX(Shared.Fonts[i].txtRect, DifX))
-                        Shared.Fonts[i].txtRect.X += DifX;
-                    if (InPictureBoundsY(Shared.Fonts[i].txtRect, DifY))
-                        Shared.Fonts[i].txtRect.Y += DifY;
+                    Shared.Fonts[i].txtRect.X += DifX;
+                    Shared.Fonts[i].txtRect.Y += DifY;
                     Shared.Fonts[i + 1].txtRect.Location = Shared.Fonts[i].txtRect.Location * DifCanvas;
                     break;
-
                 }
 
-                if ((TextFocus == FontItem.Message || sender  != this)  && Shared.Fonts[i].TypeID == FontItem.Message)
+                if ((TextFocus == FontItem.Message || sender != this) && Shared.Fonts[i].TypeID == FontItem.Message)
                 {
-                    if (InPictureBoundsX(Shared.Fonts[i].txtRect, DifX) && sender == this)
-                        Shared.Fonts[i].txtRect.X += DifX;
-                    else
-                        Shared.Fonts[i].txtRect.X += DifX;
-
-                    if (InPictureBoundsY(Shared.Fonts[i].txtRect, DifY))
-                        Shared.Fonts[i].txtRect.Y += DifY;
+                    Shared.Fonts[i].txtRect.X += DifX;
+                    Shared.Fonts[i].txtRect.Y += DifY;
                     Shared.Fonts[i + 1].txtRect.Location = Shared.Fonts[i].txtRect.Location * DifCanvas;
                     break;
-
                 }
 
                 if (TextFocus == FontItem.Name && Shared.Fonts[i].TypeID == FontItem.Name)
                 {
-                    if (InPictureBoundsX(Shared.Fonts[i].txtRect, DifX))
-                        Shared.Fonts[i].txtRect.X += DifX;
-                    if (InPictureBoundsY(Shared.Fonts[i].txtRect, DifY))
-                        Shared.Fonts[i].txtRect.Y += DifY;
+                    Shared.Fonts[i].txtRect.X += DifX;
+                    Shared.Fonts[i].txtRect.Y += DifY;
                     Shared.Fonts[i + 1].txtRect.Location = Shared.Fonts[i].txtRect.Location * DifCanvas;
                     break;
-
                 }
             }
-        }
-
-        public bool InPictureBoundsX(RectangleF b, float i)
-        {
-            if (b.Left + i > pictureBoxRect.Left && b.Right + i < pictureBoxRect.Right)
-                return true;
-            return false;
-        }
-
-        public bool InPictureBoundsY(RectangleF b, float i)
-        {
-            if (b.Top + i > pictureBoxRect.Top && b.Bottom + i < pictureBoxRect.Bottom)
-                return true;
-            return false;
         }
 
         private void SettingsForm_MouseClick(object sender, MouseEventArgs e)
@@ -958,7 +942,7 @@ namespace UltimateSpeakerTimer
                     {
                         if (TextFocus == FontItem.Time)
                             TextFocus = FontItem.None;
-                        else if (Font.txtRect.Intersects(new RectangleF(e.X,e.Y,1,1)) && TextFocus == FontItem.None)
+                        else if (Font.txtRect.Intersects(new RectangleF(e.X, e.Y, 1, 1)) && TextFocus == FontItem.None)
                             TextFocus = FontItem.Time;
                     }
 
@@ -980,6 +964,7 @@ namespace UltimateSpeakerTimer
                 }
             }
         }
+        #endregion
 
         private void MessageFontButton_Click(object sender, EventArgs e)
         {
@@ -988,8 +973,8 @@ namespace UltimateSpeakerTimer
             if (fontDialog1.ShowDialog() == DialogResult.OK)
             {
                 PickedMessageFont = new Font(fontDialog1.Font.FontFamily, fontDialog1.Font.Size, fontDialog1.Font.Style);
-                DxFont PreviewMessageFont = new DxFont(PickedMessageFont, FontItem.Message);
-                DxFont MainMessageFont = new DxFont(PickedMessageFont, FontItem.MainMessage, 1.0f, GetRatioTimerForm());
+                DxFont PreviewMessageFont = new DxFont(device,PickedMessageFont, FontItem.Message);
+                DxFont MainMessageFont = new DxFont(timerForm.device,PickedMessageFont, FontItem.MainMessage, 1.0f, GetRatioTimerForm());
                 DxFont Backup;
                 if (Shared.Fonts.Count > 0)
                 {
@@ -1022,9 +1007,10 @@ namespace UltimateSpeakerTimer
             timerForm.TransperantBG = TransperantcheckBox.Checked;
         }
 
+
         private void CountDownEffectButton_Click(object sender, EventArgs e)
         {
-            CountDownEffects CDE = new CountDownEffects(this);
+            CountDownEffect CDE = new CountDownEffect(this);
             CDE.Show();
         }
 
@@ -1077,7 +1063,7 @@ namespace UltimateSpeakerTimer
             if (speakerList.List.Count > 0)
             {
                 ListViewItem SelectedFromList = SpeakerListView.Items[SpeakerListView.SelectedIndices[0]];
-                SpeakerList.Speaker NewSpeaker = new SpeakerList.Speaker(SelectedFromList.SubItems[1].Text, int.Parse(SelectedFromList.SubItems[2].Text),int.Parse(SelectedFromList.SubItems[3].Text), int.Parse(SelectedFromList.SubItems[4].Text));
+                SpeakerList.Speaker NewSpeaker = new SpeakerList.Speaker(SelectedFromList.SubItems[1].Text, int.Parse(SelectedFromList.SubItems[2].Text), int.Parse(SelectedFromList.SubItems[3].Text), int.Parse(SelectedFromList.SubItems[4].Text));
                 if (SpeakerListView.SelectedIndices[0] != speakerList.List.Count - 1)
                 {
                     speakerList.List.RemoveAt(SpeakerListView.SelectedIndices[0]);
@@ -1093,7 +1079,7 @@ namespace UltimateSpeakerTimer
             int i = 1;
             foreach (SpeakerList.Speaker Speaker in speakerList.List)
             {
-                string[] item = { i.ToString(), Speaker.Name,Speaker.Hours.ToString(), Speaker.Minutes.ToString(), Speaker.Seconds.ToString()};
+                string[] item = { i.ToString(), Speaker.Name, Speaker.Hours.ToString(), Speaker.Minutes.ToString(), Speaker.Seconds.ToString() };
                 SpeakerListView.Items.Add(new ListViewItem(item));
                 i++;
             }
@@ -1151,7 +1137,7 @@ namespace UltimateSpeakerTimer
 
         private void SpeakerName_TextChanged(object sender, EventArgs e)
         {
-            for (int i = 0; i < Shared.Fonts.Count;i++)
+            for (int i = 0; i < Shared.Fonts.Count; i++)
             {
                 if (Shared.Fonts[i].TypeID == FontItem.Name)
                 {
@@ -1186,7 +1172,7 @@ namespace UltimateSpeakerTimer
                 if (speakerList.List.Count > 0)
                 {
                     speakerList.List.RemoveAt(SpeakerListView.SelectedIndices[0]);
-                    Console.WriteLine("Removed Speaker At Index " + SpeakerListView.SelectedIndices[0] +  ", List Contains " + speakerList.List.Count + " Items");
+                    Console.WriteLine("Removed Speaker At Index " + SpeakerListView.SelectedIndices[0] + ", List Contains " + speakerList.List.Count + " Items");
                     if (speakerList.List.Count >= 1)
                     {
                         if (speakerList.List.Count - 1 < SpeakerListView.SelectedIndices[0])
@@ -1209,7 +1195,7 @@ namespace UltimateSpeakerTimer
 
         private int Keytimer_Tick()
         {
-           if (TimerClass.Active(TimerType.CountDown) || Pauzed)
+            if (TimerClass.Active(TimerType.CountDown) || Pauzed)
             {
                 int Add = 0;
                 if (MouseInput.IsKeyDown((int)MouseInput.VirtualKeysShort.Shift))

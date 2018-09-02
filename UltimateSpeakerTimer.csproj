@@ -130,12 +130,16 @@
   <ItemGroup>
     <Compile Include="ConsoleOutput.cs" />
     <Compile Include="Countdown.cs" />
-    <Compile Include="CountDownEffects.cs" />
-    <Compile Include="CountDownEffects.Designer.cs">
-      <DependentUpon>CountDownEffects.cs</DependentUpon>
+    <Compile Include="CountDownEffectsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CountDownEffectsForm.Designer.cs">
+      <DependentUpon>CountDownEffectsForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Enums.cs" />
-    <Compile Include="FontColor.cs" />
+    <Compile Include="FontColor.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FontColor.Designer.cs">
       <DependentUpon>FontColor.cs</DependentUpon>
     </Compile>
@@ -163,8 +167,8 @@
     <Compile Include="TimerForm.Designer.cs">
       <DependentUpon>TimerForm.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="CountDownEffects.resx">
-      <DependentUpon>CountDownEffects.cs</DependentUpon>
+    <EmbeddedResource Include="CountDownEffectsForm.resx">
+      <DependentUpon>CountDownEffectsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FontColor.resx">
       <DependentUpon>FontColor.cs</DependentUpon>
@@ -180,6 +184,7 @@
     <EmbeddedResource Include="TimerForm.resx">
       <DependentUpon>TimerForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
